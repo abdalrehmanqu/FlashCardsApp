@@ -18,8 +18,8 @@ const items = [
         icon: Home,
     },
     {
-        title: "Inbox",
-        url: "#",
+        title: "Notes",
+        url: "/notes",
         icon: Inbox,
     },
     {
@@ -28,8 +28,8 @@ const items = [
         icon: Calendar,
     },
     {
-        title: "Search",
-        url: "#",
+        title: "Quiz",
+        url: "/quiz",
         icon: Search,
     },
     {

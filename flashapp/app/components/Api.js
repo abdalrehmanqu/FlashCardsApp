@@ -42,7 +42,23 @@ export const useApi = () => {
         }
 
         throw new Error(errMsg);
-    };
-
-    return { makeRequest };
+    }; return { makeRequest };
 };
+
+const BASE = "http://127.0.0.1:8000";
+
+export async function chatWithAI(data) {
+    return fetch(`${BASE}/flashcards/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    }).then(r => r.json());
+}
+
+export async function applyProposal(data) {
+    return fetch(`${BASE}/flashcards/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    }).then(r => r.json());
+}

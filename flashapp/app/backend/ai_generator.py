@@ -6,6 +6,10 @@ from pydantic import BaseModel, Field
 from typing import Annotated, Literal
 from typing_extensions import TypedDict
 import json
+
+#command line statement to get  lanchain_openai
+# pip install langchain-openai
+
 fanar_llm = ChatOpenAI(
     model="Fanar",
     openai_api_base="https://api.fanar.qa/v1",
