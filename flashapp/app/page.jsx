@@ -1,10 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Routes, Route } from 'react-router-dom';
 import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 import { useApi } from './components/Api';
 import { useRouter } from 'next/navigation';
+import { Upload, FileText, Link as LinkIcon, Sparkles, Settings } from 'lucide-react';
 export default function FlashcardGenerator() {
   const [activeTab, setActiveTab] = useState('text');
   const [count, setCount] = useState(10);
@@ -12,18 +16,16 @@ export default function FlashcardGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const charLimit = 5000;
-  const API_URL = "http://127.0.0.1:8000";
   const [file, setFile] = useState([]);
   const [link, setLink] = useState('');
-  const [frontText, setFrontText] = useState('');
-  const [backText, setBackText] = useState('');
+  const [frontText, setFrontText] = useState('short');
+  const [backText, setBackText] = useState('medium');
 
-  const [status, setStatus] = useState('idle');
   const router = useRouter();
   const { makeRequest } = useApi();
+
   const generateFlashcards = async () => {
     setIsLoading(true);
-    setStatus('generating');
     const links = link.split('\n').filter(l => l.trim() !== '');
     const formData = new FormData();
     formData.append('front_text_length', frontText);
@@ -32,20 +34,18 @@ export default function FlashcardGenerator() {
     formData.append('count', String(count));
     file.forEach((f) => formData.append('files', f))
     links.forEach((l) => formData.append('links', l))
-    console.log('Form Data:', formData.values());
+
     try {
       const deck = await makeRequest("generate", {
         method: "POST",
         body: formData,
       });
       router.push(`/decks/${deck.id}`);
-
     } catch (error) {
       console.error('Error generating flashcards:', error);
       setError('Failed to generate flashcards. Please try again.');
     } finally {
       setIsLoading(false);
-      setStatus('idle');
     }
   }
 
@@ -55,22 +55,6 @@ export default function FlashcardGenerator() {
       setFile(newFiles);
     }
   }
-  const isImage = (file) => {
-    return (
-      file.type === "image/jpeg" ||
-      file.type === "image/png"
-    );
-  }
-
-  const isYouTubeLink = (url) => {
-    try {
-      const videoId = new URL(url).searchParams.get("v");
-      return videoId !== null;
-    } catch (e) {
-      return false;
-    }
-  }
-
 
   const quickPrompts = [
     "Make flashcards for the word 'loquacious' with its meaning and example sentences.",
@@ -79,149 +63,236 @@ export default function FlashcardGenerator() {
     "Create flashcards that lists the causes and effects of climate change."
   ];
 
-  const textOptions = [
-    "Short",
-    "Medium",
-    "Long"
-  ];
-
   const isGenerateDisabled =
     (prompt.trim() === '') &&
     (link.trim() === '') &&
     ((!file || file.length === 0));
 
   return (
-    <div className="mx-auto mt-10 w-full bg-gray-950 p-6 shadow-lg">
-      <div className="mb-3 flex gap-2">
-        {['Text', 'Upload', 'Link'].map((label) => {
-          const isActive = activeTab === label.toLowerCase();
-          return (
-            <button
-              key={label}
-              onClick={() => setActiveTab(label.toLowerCase())}
-              className={`rounded-md border px-4 py-2 text-sm transition
-              ${isActive
-                  ? 'rounded-md border-2 border-gray-700 bg-gray-800 p-3 text-white text-left text-sm hover:bg-gray-800'
-                  : 'rounded-md border-2 border-gray-800 bg-gray-950 p-3 text-white text-left text-sm hover:bg-gray-800'}`}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>
-      <div className="mb-3 flex gap-4">
-        <div className="mb-3 flex gap-4">
-          <p className="text-sm flex items-center text-gray-400">Front Text Length:</p>
-          <select
-            value={frontText}
-            onChange={(e) => setFrontText(e.target.value)}
-            className="h-10 w-24 rounded-md border border-gray-700 px-3 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="short">Short</option>
-            <option value="medium">Medium</option>
-            <option value="long">Long</option>
-          </select>
+    <div className="min-h-screen bg-gradient-to-br from-[#0B0D17] via-[#0F1629] to-[#1A1B3A] p-6">
+      <div className="mx-auto max-w-4xl">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="mb-3 text-4xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+            Generate Flashcards
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Transform your content into interactive study materials
+          </p>
         </div>
-        <div className="mb-3 flex gap-4">
-          <p className="text-sm flex items-center text-gray-400">Back Text Length:</p>
-          <select
-            value={backText}
-            onChange={(e) => setBackText(e.target.value)}
-            className="h-10 w-24 rounded-md border border-gray-700 px-3 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="short">Short</option>
-            <option value="medium">Medium</option>
-            <option value="long">Long</option>
-          </select>
-        </div>
-        <div className="mb-3 flex gap-4">
-          <p className="text-sm flex items-center text-gray-400">Number of flashcards:</p>
-          <input
-            type="number"
-            min={1}
-            max={50}
-            value={count}
-            onChange={(e) => setCount(+e.target.value)}
-            className="h-10 w-24 rounded-md border border-gray-700 px-3 text-sm focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-      </div>
-      {activeTab === 'text' && (
-        <div className="relative mb-4">
-          <Textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            maxLength={charLimit}
-            placeholder="Input or paste text to generate flashcards."
-            className="min-h-[160px] w-full resize-y rounded-md border border-gray-700 p-3 text-sm text-white focus:border-blue-500 focus:outline-none"
-          />
-          <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-            {prompt.length}/{charLimit}
-          </span>
-        </div>
-      )}
-      {activeTab === 'link' && (
-        <div className="relative mb-4">
-          <Textarea
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            maxLength={charLimit}
-            placeholder="Input some links (URLs) to generate flashcards. You can also upload youtube links."
-            className="min-h-[160px] w-full resize-y rounded-md border border-gray-700 p-3 text-sm text-white focus:border-blue-500 focus:outline-none"
-          />
-          <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-            {link.length}/{charLimit}
-          </span>
-        </div>
-      )}
-      {activeTab === 'upload' && (
-        <div className="relative mb-4 flex flex-col items-center">
-          <label
-            htmlFor="file-upload"
-            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-700 rounded-md cursor-pointer bg-gray-900 hover:border-blue-500 transition"
-          >
-            <span className="text-gray-400 text-sm">Click to upload PDF or image</span>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".pdf, .jpg, .jpeg, .png"
-              className="hidden"
-              onChange={(e) => handleFileChange(e.target.files)}
-            />
-          </label>
-          {file && file.length > 0 && (
-            <div className="mt-2 text-xs text-gray-300">
-              Selected: {Array.from(file).map(f => f.name).join(', ')}
+
+        {/* Main Content Card */}
+        <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-400" />
+                <CardTitle className="text-gray-100">Content Source</CardTitle>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-gray-100"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Advanced
+              </Button>
             </div>
-          )}
-        </div>
-      )}
+            <CardDescription className="text-gray-500">
+              Choose how you want to create your flashcards
+            </CardDescription>
+          </CardHeader>
 
-      <button
-        onClick={() => {
-          if (!isGenerateDisabled) generateFlashcards();
-        }}
-        disabled={isGenerateDisabled}
-        className={`mb-6 w-full rounded-md bg-gradient-to-r from-gray-900 to-gray-700 px-4 py-3 text-sm font-semibold uppercase text-white transition-colors 
-          ${isGenerateDisabled ? 'opacity-50 hover:bg-gradient-to-r' : 'hover:cursor-pointer hover:scale-102'}
-        `}
-      >
-        Generate Flashcards
-      </button>
-      {activeTab === 'text' && (
+          <CardContent className="space-y-6">
+            {/* Content Source Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 border border-gray-700">
+                <TabsTrigger
+                  value="text"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Text
+                </TabsTrigger>
+                <TabsTrigger
+                  value="upload"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload
+                </TabsTrigger>
+                <TabsTrigger
+                  value="link"
+                  className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                >
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Link
+                </TabsTrigger>
+              </TabsList>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {quickPrompts.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPrompt(p)}
-              className="rounded-md border-2 border-gray-800 bg-gray-950 p-3 text-white text-left text-sm hover:bg-gray-800"
+              <TabsContent value="text" className="space-y-4">
+                <div className="relative">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    maxLength={charLimit}
+                    placeholder="Input or paste text to generate flashcards..."
+                    className="min-h-[160px] resize-y border-gray-700 bg-gray-800/30 text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                  />
+                  <span className="absolute bottom-3 right-3 text-xs text-gray-500">
+                    {prompt.length}/{charLimit}
+                  </span>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="upload" className="space-y-4">
+                <div className="relative">
+                  <label
+                    htmlFor="file-upload"
+                    className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer bg-gray-800/20 hover:border-purple-500 hover:bg-gray-800/30 transition-all duration-200"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-8 h-8 mb-3 text-gray-500" />
+                      <p className="mb-2 text-sm text-gray-400">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">PDF, JPG, PNG (MAX. 10MB)</p>
+                    </div>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf, .jpg, .jpeg, .png"
+                      className="hidden"
+                      onChange={(e) => handleFileChange(e.target.files)}
+                    />
+                  </label>
+                  {file && file.length > 0 && (
+                    <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700">
+                      <p className="text-sm text-gray-300 font-medium mb-1">Selected files:</p>
+                      <p className="text-xs text-gray-500">
+                        {Array.from(file).map(f => f.name).join(', ')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="link" className="space-y-4">
+                <div className="relative">
+                  <Textarea
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                    maxLength={charLimit}
+                    placeholder="Input URLs to generate flashcards from web content. YouTube links are supported..."
+                    className="min-h-[160px] resize-y border-gray-700 bg-gray-800/30 text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                  />
+                  <span className="absolute bottom-3 right-3 text-xs text-gray-500">
+                    {link.length}/{charLimit}
+                  </span>
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <Separator className="bg-gray-700" />
+
+            {/* Settings */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Front Text Length</label>
+                <select
+                  value={frontText}
+                  onChange={(e) => setFrontText(e.target.value)}
+                  className="w-full h-10 rounded-md border border-gray-700 bg-gray-800/30 px-3 text-sm text-gray-100 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/20"
+                >
+                  <option value="short">Short</option>
+                  <option value="medium">Medium</option>
+                  <option value="long">Long</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Back Text Length</label>
+                <select
+                  value={backText}
+                  onChange={(e) => setBackText(e.target.value)}
+                  className="w-full h-10 rounded-md border border-gray-700 bg-gray-800/30 px-3 text-sm text-gray-100 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/20"
+                >
+                  <option value="short">Short</option>
+                  <option value="medium">Medium</option>
+                  <option value="long">Long</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Number of Cards</label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={count}
+                  onChange={(e) => setCount(+e.target.value)}
+                  className="border-gray-700 bg-gray-800/30 text-gray-100 focus:border-purple-500 focus:ring-purple-500/20"
+                />
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <Button
+              onClick={() => {
+                if (!isGenerateDisabled) generateFlashcards();
+              }}
+              disabled={isGenerateDisabled || isLoading}
+              className="w-full h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold"
             >
-              {p}
-            </button>
-          ))}
-        </div>
-      )}
+              {isLoading ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate Flashcards
+                </>
+              )}
+            </Button>
+
+            {error && (
+              <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Prompts */}
+        {activeTab === 'text' && (
+          <Card className="mt-6 bg-gray-900/30 border-gray-800 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-gray-100 text-lg">Quick Start Prompts</CardTitle>
+              <CardDescription className="text-gray-500">
+                Click any prompt to get started quickly
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 flex-wrap justify-center">
+                {quickPrompts.map((promptText, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => setPrompt(promptText)}
+                    className="h-auto p-4 text-left overflow-hidden justify-start border-gray-700 bg-gray-800/20 hover:bg-gray-800/40 hover:border-purple-500/50 text-gray-300 hover:text-gray-100 transition-all duration-200"
+                  >
+                    <div className="text-xs">
+                      {promptText}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

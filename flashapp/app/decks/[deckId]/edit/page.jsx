@@ -1,10 +1,29 @@
 'use client';
-'use client';
 import { useState, useEffect } from "react";
 import React from 'react'
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { useParams, useRouter } from "next/navigation";
 import { useApi } from "C:\\Users\\kingh\\Documents\\GitHub\\FlashCardsApp\\flashapp\\app\\components\\Api.js";
+import {
+    Save,
+    Plus,
+    Trash2,
+    Bot,
+    Send,
+    ArrowLeft,
+    Loader2,
+    AlertTriangle,
+    Edit,
+    Eye,
+    Check,
+    X,
+    RotateCcw,
+    Sparkles
+} from 'lucide-react';
 
 export default function EditDeckPage() {
     const { deckId } = useParams();
@@ -263,307 +282,365 @@ export default function EditDeckPage() {
             role: 'assistant',
             content: 'No problem! Feel free to ask for other suggestions or modifications.'
         }]);
-    };
-
-    if (loading) {
+    }; if (loading) {
         return (
-            <div className='flex items-center justify-center h-screen bg-gray-950'>
-                <div className='flex flex-col items-center'>
-                    <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                    <div className='text-xl text-gray-300'>Loading deck...</div>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-[#0B0D17] via-[#0F1629] to-[#1A1B3A] flex items-center justify-center p-6">
+                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                    <CardContent className="pt-6">
+                        <div className="flex flex-col items-center space-y-4">
+                            <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+                            <p className="text-gray-300 text-lg">Loading deck...</p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     if (loadError) {
         return (
-            <div className='flex items-center justify-center h-screen bg-gray-950'>
-                <div className='flex flex-col items-center max-w-md text-center'>
-                    <div className='text-red-400 text-6xl mb-4'>⚠️</div>
-                    <div className='text-xl text-red-400 mb-2'>Error Loading Deck</div>
-                    <div className='text-gray-400 mb-4'>{loadError}</div>
-                    <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2"
-                        onClick={loadDeckData}
-                    >
-                        Try Again
-                    </Button>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-[#0B0D17] via-[#0F1629] to-[#1A1B3A] flex items-center justify-center p-6">
+                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm max-w-md w-full">
+                    <CardHeader className="text-center">
+                        <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+                        <CardTitle className="text-red-400">Error Loading Deck</CardTitle>
+                        <CardDescription className="text-gray-400">{loadError}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button
+                            onClick={loadDeckData}
+                            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                        >
+                            Try Again
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
-    }
+    } return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0B0D17] via-[#0F1629] to-[#1A1B3A] p-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
 
-    return (
-
-        <div className='h-screen bg-gray-950 p-4'>
-
-            <div className='grid grid-cols-4 gap-6 h-full max-w-full mx-auto w-[1300px]'>
-                <div className='col-span-3  overflow-auto'>
-                    <div className='bg-gray-900 rounded-xl shadow-2xl h-full flex flex-col'>
+                {/* Main Edit Panel */}
+                <div className="lg:col-span-3 ">
+                    <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm h-screen overflow-y-scroll">
                         {/* Header */}
-                        <div className='bg-gradient-to-r from-indigo-600 to-purple-600 p-6 flex-shrink-0'>
-                            <div className='flex justify-between items-center'>
-                                <h1 className='text-3xl font-bold text-white'>Edit Deck</h1>
+                        <CardHeader className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 border-b border-gray-800">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => router.push('/history')}
+                                        className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+                                    >
+                                        <ArrowLeft className="mr-2 h-4 w-4" />
+                                        Back
+                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Edit className="h-6 w-6 text-purple-400" />
+                                        <CardTitle className="text-2xl bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                                            Edit Deck
+                                        </CardTitle>
+                                    </div>
+                                </div>
                                 <Button
-                                    className="bg-white bg-opacity-20 backdrop-blur-sm border border-white border-opacity-30 rounded-lg text-white hover:bg-opacity-30 transition-all duration-300 px-6 py-2"
                                     onClick={saveDeck}
                                     disabled={saving}
+                                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
                                 >
                                     {saving ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             Saving...
-                                        </div>
+                                        </>
                                     ) : (
-                                        'Save Changes'
+                                        <>
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Save Changes
+                                        </>
                                     )}
                                 </Button>
                             </div>
-                        </div>
+                        </CardHeader>
 
-                        <div className='flex-1 p-6 overflow-y-scroll'>
+                        <CardContent className="p-6 ">
+                            {/* Error Display */}
                             {error && (
-                                <div className="mb-6 p-4 bg-red-900 border border-red-700 rounded-lg animate-fade-in">
-                                    <div className="flex justify-between items-start">
-                                        <p className="text-red-200">{error}</p>
-                                        <Button
-                                            className="ml-4 bg-red-700 hover:bg-red-600 text-white text-sm px-3 py-1"
-                                            onClick={() => setError(null)}
-                                        >
-                                            ✕
-                                        </Button>
-                                    </div>
-                                </div>
+                                <Card className="bg-red-900/20 border-red-800 mb-6">
+                                    <CardContent className="pt-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2 text-red-400">
+                                                <AlertTriangle className="h-4 w-4" />
+                                                <p className="text-sm">{error}</p>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setError(null)}
+                                                className="text-red-400 hover:text-red-300"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             )}
 
                             {/* Deck Info */}
-                            <div className="rounded-xl bg-gray-800 p-6 shadow-lg mb-6 border border-gray-700">
-                                <div className="space-y-4">
-                                    <div className="group">
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Deck Name</label>
-                                        <input
-                                            className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                            <Card className="bg-gray-800/30 border-gray-700 mb-6">
+                                <CardHeader>
+                                    <CardTitle className="text-gray-100">Deck Information</CardTitle>
+                                    <CardDescription className="text-gray-400">
+                                        Edit your deck's basic information
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">Deck Name</label>
+                                        <Input
                                             value={name}
                                             onChange={(e) => setName(e.target.value)}
                                             placeholder="Enter deck name..."
+                                            className="border-gray-700 bg-gray-800/30 text-gray-100 focus:border-purple-500 focus:ring-purple-500/20"
                                         />
                                     </div>
-                                    <div className="group">
-                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Description</label>
-                                        <textarea
-                                            className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 resize-vertical"
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                                        <Textarea
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             placeholder="Describe your deck..."
                                             rows={3}
+                                            className="border-gray-700 bg-gray-800/30 text-gray-100 focus:border-purple-500 focus:ring-purple-500/20"
                                         />
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
 
                             {/* Cards */}
                             <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-gray-100">Flashcards</h3>
+                                    <Button
+                                        onClick={addNewCard}
+                                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Card
+                                    </Button>
+                                </div>
+
                                 {cards.map((card, index) => (
-                                    <div key={index} className="rounded-xl bg-gray-800 border border-gray-700 shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.01]">
-                                        <div className="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4 flex justify-between items-center">
-                                            <h3 className="font-semibold text-white flex items-center gap-2">
-                                                <span className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-sm">
-                                                    {index + 1}
-                                                </span>
-                                                Card {index + 1}
-                                            </h3>
-                                            <Button
-                                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm rounded-lg transition-colors duration-200"
-                                                onClick={() => removeCard(index)}
-                                            >
-                                                Remove
-                                            </Button>
-                                        </div>
-                                        <div className="p-6 space-y-4">
+                                    <Card key={index} className="bg-gray-800/30 border-gray-700 hover:border-purple-500/50 transition-all duration-200">
+                                        <CardHeader className="pb-4">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                                                        {index + 1}
+                                                    </div>
+                                                    <CardTitle className="text-gray-100">Card {index + 1}</CardTitle>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => removeCard(index)}
+                                                    className="border-red-700 text-red-400 hover:bg-red-900/20 hover:text-red-300"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-300 mb-2">Question</label>
-                                                <textarea
-                                                    className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 resize-vertical"
+                                                <label className="block text-sm font-medium text-gray-300 mb-2">Question</label>
+                                                <Textarea
                                                     value={card.question || ''}
                                                     onChange={(e) => handleCardChange(index, 'question', e.target.value)}
                                                     placeholder="Enter the question..."
                                                     rows={2}
+                                                    className="border-gray-700 bg-gray-800/30 text-gray-100 focus:border-purple-500 focus:ring-purple-500/20"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-300 mb-2">Answer</label>
-                                                <textarea
-                                                    className="w-full rounded-lg bg-gray-700 border border-gray-600 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 resize-vertical"
+                                                <label className="block text-sm font-medium text-gray-300 mb-2">Answer</label>
+                                                <Textarea
                                                     value={card.answer || ''}
                                                     onChange={(e) => handleCardChange(index, 'answer', e.target.value)}
                                                     placeholder="Enter the answer..."
                                                     rows={2}
+                                                    className="border-gray-700 bg-gray-800/30 text-gray-100 focus:border-purple-500 focus:ring-purple-500/20"
                                                 />
                                             </div>
-                                        </div>
-                                    </div>
+                                        </CardContent>
+                                    </Card>
                                 ))}
                             </div>
-
-                            {/* Add New Card Button */}
-                            <div className="mt-6">
-                                <Button
-                                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-[1.02]"
-                                    onClick={addNewCard}
-                                >
-                                    + Add New Card
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {/* AI Chat Panel */}
-                <div className='col-span-1'>
-                    <div className='bg-gray-900 rounded-xl shadow-2xl h-full flex flex-col'>
+                <div className="lg:col-span-1">
+                    <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm h-full flex flex-col">
                         {/* Chat Header */}
-                        <div className='bg-gradient-to-r from-emerald-600 to-teal-600 p-4 flex-shrink-0'>
-                            <div className='flex items-center gap-2'>
-                                <div className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></div>
-                                <h2 className='text-lg font-semibold text-white'>AI Assistant</h2>
+                        <CardHeader className="bg-gradient-to-r from-purple-600/20 to-purple-700/20 border-b border-gray-800 pb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                                <Bot className="h-5 w-5 text-purple-400" />
+                                <CardTitle className="text-lg text-gray-100">AI Assistant</CardTitle>
                             </div>
-                        </div>
+                            <CardDescription className="text-gray-400">
+                                Ask me to improve your flashcards
+                            </CardDescription>
+                        </CardHeader>
 
                         {/* Chat Messages */}
-                        <div className='flex-1 overflow-y-auto p-4 space-y-3'>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
                             {chatMessages.map((message, index) => (
-                                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                                    <div className={`px-3 py-2 rounded-2xl max-w-[90%] transition-all duration-300 shadow-lg ${message.role === 'user'
-                                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                                        : 'bg-gray-800 text-gray-200 border border-gray-700'
+                                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`px-3 py-2 rounded-lg max-w-[90%] ${message.role === 'user'
+                                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
+                                        : 'bg-gray-800/50 text-gray-200 border border-gray-700'
                                         }`}>
                                         <div className="whitespace-pre-wrap text-xs">{message.content}</div>
 
+                                        {/* Preview and Action Buttons */}
                                         {message.showButtons && !message.isApplied && message.commands && (
                                             <div className="mt-3 space-y-2">
                                                 {/* Preview section */}
-                                                <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
-                                                    <div className="text-xs font-semibold text-gray-300 mb-2 flex items-center gap-1">
-                                                        👁️ Preview Changes
-                                                    </div>
-                                                    {message.commands.map((command, cmdIndex) => {
-                                                        if (command.name === 'update_card') {
-                                                            const cardId = command.arguments.id;
-                                                            const currentCard = cards.find((_, idx) => (idx + 1).toString() === cardId);
+                                                <Card className="bg-gray-700/50 border-gray-600">
+                                                    <CardContent className="p-3">
+                                                        <div className="text-xs font-semibold text-gray-300 mb-2 flex items-center gap-1">
+                                                            <Eye className="h-3 w-3" />
+                                                            Preview Changes
+                                                        </div>
+                                                        {message.commands.map((command, cmdIndex) => {
+                                                            if (command.name === 'update_card') {
+                                                                const cardId = command.arguments.id;
+                                                                const currentCard = cards.find((_, idx) => (idx + 1).toString() === cardId);
 
-                                                            return (
-                                                                <div key={cmdIndex} className="bg-gray-800 rounded p-2 mb-2 text-xs">
-                                                                    <div className="font-medium text-gray-300 mb-1">Card {cardId}:</div>
+                                                                return (
+                                                                    <div key={cmdIndex} className="bg-gray-800/50 rounded p-2 mb-2 text-xs">
+                                                                        <div className="font-medium text-gray-300 mb-1">Card {cardId}:</div>
 
-                                                                    {/* Front/Question changes */}
-                                                                    {command.arguments.front && (
-                                                                        <div className="mb-2">
-                                                                            <div className="text-gray-400 text-xs">Question:</div>
-                                                                            <div className="flex flex-col gap-1">
-                                                                                <div className="bg-red-900 bg-opacity-30 p-1 rounded text-red-200 text-xs">
-                                                                                    <span className="text-red-400">- </span>
-                                                                                    {currentCard?.question || 'Empty'}
-                                                                                </div>
-                                                                                <div className="bg-green-900 bg-opacity-30 p-1 rounded text-green-200 text-xs">
-                                                                                    <span className="text-green-400">+ </span>
-                                                                                    {command.arguments.front}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-
-                                                                    {/* Back/Answer changes */}
-                                                                    {command.arguments.back && (
-                                                                        <div>
-                                                                            <div className="text-gray-400 text-xs">Answer:</div>
-                                                                            <div className="flex flex-col gap-1">
-                                                                                <div className="bg-red-900 bg-opacity-30 p-1 rounded text-red-200 text-xs">
-                                                                                    <span className="text-red-400">- </span>
-                                                                                    {currentCard?.answer || 'Empty'}
-                                                                                </div>
-                                                                                <div className="bg-green-900 bg-opacity-30 p-1 rounded text-green-200 text-xs">
-                                                                                    <span className="text-green-400">+ </span>
-                                                                                    {command.arguments.back}
+                                                                        {command.arguments.front && (
+                                                                            <div className="mb-2">
+                                                                                <div className="text-gray-400 text-xs">Question:</div>
+                                                                                <div className="space-y-1">
+                                                                                    <div className="bg-red-900/30 p-1 rounded text-red-200 text-xs">
+                                                                                        <span className="text-red-400">- </span>
+                                                                                        {currentCard?.question || 'Empty'}
+                                                                                    </div>
+                                                                                    <div className="bg-green-900/30 p-1 rounded text-green-200 text-xs">
+                                                                                        <span className="text-green-400">+ </span>
+                                                                                        {command.arguments.front}
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        } else if (command.name === 'add_card') {
-                                                            return (
-                                                                <div key={cmdIndex} className="bg-gray-800 rounded p-2 mb-2 text-xs">
-                                                                    <div className="font-medium text-green-300 mb-1">➕ New Card:</div>
-                                                                    <div className="space-y-1">
-                                                                        <div>
-                                                                            <span className="text-gray-400">Question: </span>
-                                                                            <span className="text-green-200">{command.arguments.front}</span>
-                                                                        </div>
-                                                                        <div>
-                                                                            <span className="text-gray-400">Answer: </span>
-                                                                            <span className="text-green-200">{command.arguments.back}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        } else if (command.name === 'delete_card') {
-                                                            const cardId = command.arguments.id;
-                                                            const currentCard = cards.find((_, idx) => (idx + 1).toString() === cardId);
+                                                                        )}
 
-                                                            return (
-                                                                <div key={cmdIndex} className="bg-gray-800 rounded p-2 mb-2 text-xs">
-                                                                    <div className="font-medium text-red-300 mb-1">🗑️ Delete Card {cardId}:</div>
-                                                                    <div className="bg-red-900 bg-opacity-30 p-1 rounded text-red-200">
-                                                                        <div><span className="text-gray-400">Question: </span>{currentCard?.question || 'Empty'}</div>
-                                                                        <div><span className="text-gray-400">Answer: </span>{currentCard?.answer || 'Empty'}</div>
+                                                                        {command.arguments.back && (
+                                                                            <div>
+                                                                                <div className="text-gray-400 text-xs">Answer:</div>
+                                                                                <div className="space-y-1">
+                                                                                    <div className="bg-red-900/30 p-1 rounded text-red-200 text-xs">
+                                                                                        <span className="text-red-400">- </span>
+                                                                                        {currentCard?.answer || 'Empty'}
+                                                                                    </div>
+                                                                                    <div className="bg-green-900/30 p-1 rounded text-green-200 text-xs">
+                                                                                        <span className="text-green-400">+ </span>
+                                                                                        {command.arguments.back}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                </div>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })}
-                                                </div>
+                                                                );
+                                                            } else if (command.name === 'add_card') {
+                                                                return (
+                                                                    <div key={cmdIndex} className="bg-gray-800/50 rounded p-2 mb-2 text-xs">
+                                                                        <div className="font-medium text-green-300 mb-1 flex items-center gap-1">
+                                                                            <Plus className="h-3 w-3" />
+                                                                            New Card:
+                                                                        </div>
+                                                                        <div className="space-y-1">
+                                                                            <div>
+                                                                                <span className="text-gray-400">Question: </span>
+                                                                                <span className="text-green-200">{command.arguments.front}</span>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="text-gray-400">Answer: </span>
+                                                                                <span className="text-green-200">{command.arguments.back}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            } else if (command.name === 'delete_card') {
+                                                                const cardId = command.arguments.id;
+                                                                const currentCard = cards.find((_, idx) => (idx + 1).toString() === cardId);
+
+                                                                return (
+                                                                    <div key={cmdIndex} className="bg-gray-800/50 rounded p-2 mb-2 text-xs">
+                                                                        <div className="font-medium text-red-300 mb-1 flex items-center gap-1">
+                                                                            <Trash2 className="h-3 w-3" />
+                                                                            Delete Card {cardId}:
+                                                                        </div>
+                                                                        <div className="bg-red-900/30 p-1 rounded text-red-200">
+                                                                            <div><span className="text-gray-400">Question: </span>{currentCard?.question || 'Empty'}</div>
+                                                                            <div><span className="text-gray-400">Answer: </span>{currentCard?.answer || 'Empty'}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })}
+                                                    </CardContent>
+                                                </Card>
 
                                                 {/* Action buttons */}
                                                 <div className="flex gap-1">
                                                     <Button
-                                                        className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded-lg transition-all duration-200 transform hover:scale-105"
+                                                        size="sm"
                                                         onClick={() => handleApplyChanges(message.proposalId, message.commands)}
+                                                        className="bg-green-600 hover:bg-green-700 text-white text-xs"
                                                     >
-                                                        ✓ Accept Changes
+                                                        <Check className="mr-1 h-3 w-3" />
+                                                        Accept
                                                     </Button>
                                                     <Button
-                                                        className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded-lg transition-all duration-200 transform hover:scale-105"
+                                                        size="sm"
+                                                        variant="outline"
                                                         onClick={() => handleDenyChanges(message.proposalId)}
+                                                        className="border-red-700 text-red-400 hover:bg-red-900/20 text-xs"
                                                     >
-                                                        ✗ Deny
+                                                        <X className="mr-1 h-3 w-3" />
+                                                        Deny
                                                     </Button>
                                                 </div>
                                             </div>
                                         )}
 
                                         {message.isApplied && (
-                                            <div className="flex gap-1 mt-2">
+                                            <div className="mt-2">
                                                 <Button
-                                                    className="bg-orange-600 hover:bg-orange-700 text-white text-xs px-2 py-1 rounded-lg transition-all duration-200 transform hover:scale-105"
+                                                    size="sm"
+                                                    variant="outline"
                                                     onClick={() => handleReverseChanges(message.proposalId)}
+                                                    className="border-orange-700 text-orange-400 hover:bg-orange-900/20 text-xs"
                                                 >
-                                                    ↺ Reverse
+                                                    <RotateCcw className="mr-1 h-3 w-3" />
+                                                    Reverse
                                                 </Button>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ))}
+
                             {chatLoading && (
-                                <div className="flex justify-start animate-fade-in">
-                                    <div className="bg-gray-800 border border-gray-700 text-gray-200 px-3 py-2 rounded-2xl max-w-[90%] flex items-center gap-2 shadow-lg">
-                                        <div className="flex space-x-1">
-                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></div>
-                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                        </div>
+                                <div className="flex justify-start">
+                                    <div className="bg-gray-800/50 border border-gray-700 text-gray-200 px-3 py-2 rounded-lg flex items-center gap-2">
+                                        <Loader2 className="h-3 w-3 animate-spin text-purple-400" />
                                         <span className="text-xs">AI is thinking...</span>
                                     </div>
                                 </div>
@@ -571,30 +648,31 @@ export default function EditDeckPage() {
                         </div>
 
                         {/* Chat Input */}
-                        <form onSubmit={handleChatSubmit} className="p-3 border-t border-gray-700 bg-gray-800 flex-shrink-0">
-                            <div className="flex gap-2">
-                                <input
+                        <div className="p-4 border-t border-gray-800">
+                            <form onSubmit={handleChatSubmit} className="flex gap-2">
+                                <Input
                                     type="text"
-                                    className="flex-1 rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-gray-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 text-sm"
                                     placeholder="Ask me to improve your flashcards..."
                                     value={chatInput}
                                     onChange={(e) => setChatInput(e.target.value)}
                                     disabled={chatLoading}
+                                    className="flex-1 border-gray-700 bg-gray-800/30 text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 text-sm"
                                 />
                                 <Button
                                     type="submit"
-                                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    size="sm"
                                     disabled={chatLoading || !chatInput.trim()}
+                                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
                                 >
                                     {chatLoading ? (
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : (
-                                        '→'
+                                        <Send className="h-4 w-4" />
                                     )}
                                 </Button>
-                            </div>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+                    </Card>
                 </div>
             </div>
         </div>

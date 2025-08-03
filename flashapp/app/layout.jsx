@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AppSidebar from "./components/Navbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import AppNavbar from "./components/Navbar";
 import {
   ClerkProvider,
   SignInButton,
@@ -10,8 +9,6 @@ import {
   SignedOut,
   UserButton,
 } from '@clerk/nextjs'
-import { AuthPage } from "./components/AuthPage"
-import { Routes, Route } from 'react-router-dom';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,25 +33,23 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <div className="flex h-screen flex-col bg-[#0B0D17] text-gray-100">
-            <main className="flex-1 overflow-y-auto p-6">
-              <header className="flex justify-end items-center p-4 gap-4 h-16">
+            <header className="flex justify-between items-center border-b border-gray-800/50 bg-[#0B0D17]/95 backdrop-blur-sm px-6 py-3">
+              <div className="flex items-center space-x-8">
+                <h1 className="text-xl font-bold text-gray-100 tracking-tight">StudyBuddy</h1>
+                <AppNavbar />
+              </div>
+              <div className="flex items-center gap-3">
                 <SignedOut>
-                  <SignInButton className="sign-in-button border-[1px] border-gray-500 py-2 px-4 rounded-lg" />
-                  <SignUpButton className="sign-in-button border-[1px] border-gray-500 py-2 px-4 rounded-lg" />
+                  <SignInButton className="text-gray-400 hover:text-gray-100 border border-gray-700 hover:border-gray-600 py-2 px-4 rounded-lg transition-all duration-200 text-sm" />
+                  <SignUpButton className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-all duration-200 text-sm font-medium" />
                 </SignedOut>
                 <SignedIn>
                   <UserButton />
                 </SignedIn>
-              </header>
-              <SidebarProvider>
-                <AppSidebar />
-                <main>
-                  <SidebarTrigger />
-                  <div className="mx-50">
-                    {children}
-                  </div>
-                </main>
-              </SidebarProvider>
+              </div>
+            </header>
+            <main className="flex-1 overflow-y-auto">
+              {children}
             </main>
           </div>
         </body>

@@ -1,8 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 import { useApi } from '../components/Api';
 import { useRouter } from 'next/navigation';
+import { Upload, FileText, Link as LinkIcon, Sparkles, BookOpen } from 'lucide-react';
 
 export default function NotesGenerator() {
     const [activeTab, setActiveTab] = useState('text');
@@ -13,13 +18,11 @@ export default function NotesGenerator() {
     const [file, setFile] = useState([]);
     const [link, setLink] = useState('');
 
-    const [status, setStatus] = useState('idle');
     const router = useRouter();
     const { makeRequest } = useApi();
 
     const generateNotes = async () => {
         setIsLoading(true);
-        setStatus('generating');
         const links = link.split('\n').filter(l => l.trim() !== '');
         const formData = new FormData();
         formData.append('prompt', prompt);
@@ -37,7 +40,6 @@ export default function NotesGenerator() {
             setError('Failed to generate notes. Please try again.');
         } finally {
             setIsLoading(false);
-            setStatus('idle');
         }
     }
 
@@ -45,15 +47,6 @@ export default function NotesGenerator() {
         if (files) {
             const newFiles = [...file, ...files];
             setFile(newFiles);
-        }
-    }
-
-    const isYouTubeLink = (url) => {
-        try {
-            const videoId = new URL(url).searchParams.get("v");
-            return videoId !== null;
-        } catch (e) {
-            return false;
         }
     }
 
@@ -70,111 +63,179 @@ export default function NotesGenerator() {
         ((!file || file.length === 0));
 
     return (
-        <div className="mx-auto mt-10 max-w-2xl bg-gray-950 p-6 shadow-lg rounded-xl">
-            <h1 className="text-3xl font-bold text-white mb-6 text-center">Notes Generator</h1>
-
-            <div className="mb-3 flex gap-2">
-                {['Text', 'Upload', 'Link'].map((label) => {
-                    const isActive = activeTab === label.toLowerCase();
-                    return (
-                        <button
-                            key={label}
-                            onClick={() => setActiveTab(label.toLowerCase())}
-                            className={`rounded-md border px-4 py-2 text-sm transition
-              ${isActive
-                                    ? 'rounded-md border-2 border-gray-700 bg-gray-800 p-3 text-white text-left text-sm hover:bg-gray-800'
-                                    : 'rounded-md border-2 border-gray-800 bg-gray-950 p-3 text-white text-left text-sm hover:bg-gray-800'}`}
-                        >
-                            {label}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {activeTab === 'text' && (
-                <div className="relative mb-4">
-                    <Textarea
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        maxLength={charLimit}
-                        placeholder="Input or paste text to generate study notes."
-                        className="min-h-[160px] w-full resize-y rounded-md border border-gray-700 p-3 text-sm text-white focus:border-blue-500 focus:outline-none"
-                    />
-                    <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-                        {prompt.length}/{charLimit}
-                    </span>
+        <div className="min-h-screen bg-gradient-to-br from-[#0B0D17] via-[#0F1629] to-[#1A1B3A] p-6">
+            <div className="mx-auto max-w-4xl">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <h1 className="mb-3 text-4xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                        Generate Study Notes
+                    </h1>
+                    <p className="text-gray-400 text-lg">
+                        Transform your content into comprehensive study materials
+                    </p>
                 </div>
-            )}
 
-            {activeTab === 'link' && (
-                <div className="relative mb-4">
-                    <Textarea
-                        value={link}
-                        onChange={(e) => setLink(e.target.value)}
-                        maxLength={charLimit}
-                        placeholder="Input some links (URLs) to generate notes. You can also upload youtube links."
-                        className="min-h-[160px] w-full resize-y rounded-md border border-gray-700 p-3 text-sm text-white focus:border-blue-500 focus:outline-none"
-                    />
-                    <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-                        {link.length}/{charLimit}
-                    </span>
-                </div>
-            )}
-
-            {activeTab === 'upload' && (
-                <div className="relative mb-4 flex flex-col items-center">
-                    <label
-                        htmlFor="file-upload"
-                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-700 rounded-md cursor-pointer bg-gray-900 hover:border-blue-500 transition"
-                    >
-                        <span className="text-gray-400 text-sm">Click to upload PDF</span>
-                        <input
-                            id="file-upload"
-                            type="file"
-                            accept=".pdf"
-                            className="hidden"
-                            onChange={(e) => handleFileChange(e.target.files)}
-                        />
-                    </label>
-                    {file && file.length > 0 && (
-                        <div className="mt-2 text-xs text-gray-300">
-                            Selected: {Array.from(file).map(f => f.name).join(', ')}
+                {/* Main Content Card */}
+                <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5 text-purple-400" />
+                            <CardTitle className="text-gray-100">Content Source</CardTitle>
                         </div>
-                    )}
-                </div>
-            )}
+                        <CardDescription className="text-gray-500">
+                            Choose how you want to create your study notes
+                        </CardDescription>
+                    </CardHeader>
 
-            <button
-                onClick={() => {
-                    if (!isGenerateDisabled) generateNotes();
-                }}
-                disabled={isGenerateDisabled || isLoading}
-                className={`mb-6 w-full rounded-md bg-gradient-to-r from-gray-900 to-gray-700 px-4 py-3 text-sm font-semibold uppercase text-white transition-colors 
-          ${isGenerateDisabled || isLoading ? 'opacity-50 hover:bg-gradient-to-r' : 'hover:cursor-pointer hover:scale-102'}
-        `}
-            >
-                {isLoading ? 'Generating Notes...' : 'Generate Notes'}
-            </button>
+                    <CardContent className="space-y-6">
+                        {/* Content Source Tabs */}
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                            <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 border border-gray-700">
+                                <TabsTrigger
+                                    value="text"
+                                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                                >
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    Text
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="upload"
+                                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                                >
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Upload
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="link"
+                                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-gray-400"
+                                >
+                                    <LinkIcon className="mr-2 h-4 w-4" />
+                                    Link
+                                </TabsTrigger>
+                            </TabsList>
 
-            {error && (
-                <div className="mb-4 p-4 bg-red-900 border border-red-700 rounded-lg">
-                    <p className="text-red-200">{error}</p>
-                </div>
-            )}
+                            <TabsContent value="text" className="space-y-4">
+                                <div className="relative">
+                                    <Textarea
+                                        value={prompt}
+                                        onChange={(e) => setPrompt(e.target.value)}
+                                        maxLength={charLimit}
+                                        placeholder="Input or paste text to generate comprehensive study notes..."
+                                        className="min-h-[160px] resize-y border-gray-700 bg-gray-800/30 text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                                    />
+                                    <span className="absolute bottom-3 right-3 text-xs text-gray-500">
+                                        {prompt.length}/{charLimit}
+                                    </span>
+                                </div>
+                            </TabsContent>
 
-            {activeTab === 'text' && (
-                <div className="grid gap-3 sm:grid-cols-1">
-                    {quickPrompts.map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPrompt(p)}
-                            className="rounded-md border-2 border-gray-800 bg-gray-950 p-3 text-white text-left text-sm hover:bg-gray-800"
+                            <TabsContent value="upload" className="space-y-4">
+                                <div className="relative">
+                                    <label
+                                        htmlFor="file-upload"
+                                        className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer bg-gray-800/20 hover:border-purple-500 hover:bg-gray-800/30 transition-all duration-200"
+                                    >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <Upload className="w-8 h-8 mb-3 text-gray-500" />
+                                            <p className="mb-2 text-sm text-gray-400">
+                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                            </p>
+                                            <p className="text-xs text-gray-500">PDF files (MAX. 10MB)</p>
+                                        </div>
+                                        <input
+                                            id="file-upload"
+                                            type="file"
+                                            accept=".pdf"
+                                            className="hidden"
+                                            onChange={(e) => handleFileChange(e.target.files)}
+                                        />
+                                    </label>
+                                    {file && file.length > 0 && (
+                                        <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700">
+                                            <p className="text-sm text-gray-300 font-medium mb-1">Selected files:</p>
+                                            <p className="text-xs text-gray-500">
+                                                {Array.from(file).map(f => f.name).join(', ')}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="link" className="space-y-4">
+                                <div className="relative">
+                                    <Textarea
+                                        value={link}
+                                        onChange={(e) => setLink(e.target.value)}
+                                        maxLength={charLimit}
+                                        placeholder="Input URLs to generate notes from web content. YouTube links are supported..."
+                                        className="min-h-[160px] resize-y border-gray-700 bg-gray-800/30 text-gray-100 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
+                                    />
+                                    <span className="absolute bottom-3 right-3 text-xs text-gray-500">
+                                        {link.length}/{charLimit}
+                                    </span>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+
+                        <Separator className="bg-gray-700" />
+
+                        {/* Generate Button */}
+                        <Button
+                            onClick={() => {
+                                if (!isGenerateDisabled) generateNotes();
+                            }}
+                            disabled={isGenerateDisabled || isLoading}
+                            className="w-full h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold"
                         >
-                            {p}
-                        </button>
-                    ))}
-                </div>
-            )}
+                            {isLoading ? (
+                                <>
+                                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    Generating Notes...
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Generate Study Notes
+                                </>
+                            )}
+                        </Button>
+
+                        {error && (
+                            <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                                <p className="text-red-400 text-sm">{error}</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Quick Prompts */}
+                {activeTab === 'text' && (
+                    <Card className="mt-6 bg-gray-900/30 border-gray-800 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle className="text-gray-100 text-lg">Quick Start Prompts</CardTitle>
+                            <CardDescription className="text-gray-500">
+                                Click any prompt to get started quickly
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-wrap gap-3 justify-center">
+                                {quickPrompts.map((promptText, index) => (
+                                    <Button
+                                        key={index}
+                                        variant="outline"
+                                        onClick={() => setPrompt(promptText)}
+                                        className="h-auto p-4 text-left justify-start border-gray-700 bg-gray-800/20 hover:bg-gray-800/40 hover:border-purple-500/50 text-gray-300 hover:text-gray-100 transition-all duration-200"
+                                    >
+                                        <div className="text-sm leading-relaxed">
+                                            {promptText}
+                                        </div>
+                                    </Button>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
         </div>
     );
 }
