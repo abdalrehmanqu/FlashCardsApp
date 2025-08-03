@@ -6,14 +6,16 @@ from pydantic import BaseModel, Field
 from typing import Annotated, Literal
 from typing_extensions import TypedDict
 import json
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 #command line statement to get  lanchain_openai
 # pip install langchain-openai
 
 fanar_llm = ChatOpenAI(
     model="Fanar",
     openai_api_base="https://api.fanar.qa/v1",
-    openai_api_key="-",
+    openai_api_key=os.getenv("FANAR_API_KEY"),
     temperature=0.7,
 )
 
